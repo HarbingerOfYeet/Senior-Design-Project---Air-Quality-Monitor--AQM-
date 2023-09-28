@@ -1,3 +1,9 @@
+# Title: hpma.py
+# Description: code library defining communication via UART for HPMA115CO
+# Author: Winston Ngo
+# BME 495 Senior Design
+# Adapted for Raspberry Pi Pico using micropython from https://github.com/UnravelTEC/Raspi-Driver-HPM-series
+
 from machine import UART
 from utime import sleep
 
@@ -7,7 +13,7 @@ def sendSimpleCommand(cmd, description):
     for tried in range(5):
         try:
             pm.write(cmd)
-            ret = pm.read(2)
+            ret = pm.read(2)    # read 2 bytes
         except Exception as error:
             print("An error occurred: ", error)
             return
@@ -33,7 +39,8 @@ def stopAutoSend():
 def readMeasurement():
     try:
         pm.write(b'\x68\x01\x04\x93')
-        ret = pm.read(8)
+        ret = pm.read(8)    # read 8 bytes
+        print(ret)
     except Exception as error:
         print("An error occurred: ", error)
         return
@@ -66,7 +73,10 @@ if __name__ == "__main__":
         sleep(1)
 
     # output real data
-    while True:
+    for i in range(15):
         output_string = readMeasurement()
         print(output_string, end='')
         sleep(1)
+
+    print("powering down")
+    stopMeasurement()
