@@ -25,7 +25,7 @@ import datetime, time
 import os
 import signal
 
-LOGFILE = "/run/hpm"
+# LOGFILE = "/run/hpm"
 
 ser = serial.Serial()
 ser.port = "/dev/serial0"
@@ -34,16 +34,16 @@ ser.timeout = 1
 
 ser.open()
 
-def exit_gracefully(a,b):
-    print("set sleep")
-    sendSimpleCommand("\x68\x01\x02\x95", "Stop Particle Measurement")
-    ser.close()
-    os.path.isfile(LOGFILE) and os.access(LOGFILE, os.W_OK) and os.remove(LOGFILE)
-    print("exit")
-    exit(0)
+# def exit_gracefully(a,b):
+#     print("set sleep")
+#     sendSimpleCommand("\x68\x01\x02\x95", "Stop Particle Measurement")
+#     ser.close()
+#     os.path.isfile(LOGFILE) and os.access(LOGFILE, os.W_OK) and os.remove(LOGFILE)
+#     print("exit")
+#     exit(0)
 
-signal.signal(signal.SIGINT, exit_gracefully)
-signal.signal(signal.SIGTERM, exit_gracefully)
+# signal.signal(signal.SIGINT, exit_gracefully)
+# signal.signal(signal.SIGTERM, exit_gracefully)
 
 def eprint(*args, **kwargs):
     print(*args, file=sys.stderr, **kwargs)
@@ -60,8 +60,8 @@ def sendSimpleCommand(cmd, description):
       eprint("Error: only " + str(len(ret)) + " bytes received")
       continue
 
-    if ord(ret[0]) != 0xA5 or ord(ret[1]) != 0xA5:
-      print(description + ": ret should be 0xA5 0xA5, is", hex(ord(ret[0])), hex(ord(ret[1])))
+    # if ord(ret[0]) != 0xA5 or ord(ret[1]) != 0xA5:
+    #   print(description + ": ret should be 0xA5 0xA5, is", hex(ord(ret[0])), hex(ord(ret[1])))
     else:
       return
   eprint(description, "unsuccessful, exit")
@@ -85,14 +85,17 @@ def readMeasurement():
     eprint("Error: only " + str(len(ret)) + " bytes received")
     exit(1)
 
-  if ord(ret[0]) != 0x40 or ord(ret[1]) != 0x5 or ord(ret[2]) != 0x4:
+  # if ord(ret[0]) != 0x40 or ord(ret[1]) != 0x5 or ord(ret[2]) != 0x4:
+  if int(ret[0]) != 0x40 or int(ret[1]) != 0x5 or int(ret[2]) != 0x4:
     eprint("header NOK\n0x40 0x05 0x04")
     for i in range(len(ret)):
-      eprint(hex(ord(ret[i])) + ' ',end='')
+      eprint(hex(int(ret[i])) + ' ',end='')
     eprint('')
 
-  pm25 = ord(ret[3]) * 256 + ord(ret[4])
-  pm10 = ord(ret[5]) * 256 + ord(ret[6])
+  # pm25 = ord(ret[3]) * 256 + ord(ret[4])
+  # pm10 = ord(ret[5]) * 256 + ord(ret[6])
+  pm25 = int(ret[3]) * 256 + int(ret[4])
+  pm10 = int(ret[5]) * 256 + int(ret[6])
   output_string = 'particulate_matter_ugpm3{{size="pm2.5",sensor="HPM"}} {0}\n'.format(pm25)
   output_string += 'particulate_matter_ugpm3{{size="pm10",sensor="HPM"}} {0}\n'.format(pm10)
 
@@ -115,10 +118,10 @@ if __name__ == "__main__":
     print(output_string, end='')
     time.sleep(1)
 
-  print("starting logging.")
-  while True:
-    output_string = readMeasurement()
-    logfilehandle = open(LOGFILE, "w",1)
-    logfilehandle.write(output_string)
-    logfilehandle.close()
-    time.sleep(1)
+  # print("starting logging.")
+  # while True:
+  #   output_string = readMeasurement()
+  #   logfilehandle = open(LOGFILE, "w",1)
+  #   logfilehandle.write(output_string)
+  #   logfilehandle.close()
+  #   time.sleep(1)

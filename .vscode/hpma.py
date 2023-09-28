@@ -1,16 +1,16 @@
-from machine import UART, Pin
+from machine import UART
 from utime import sleep
 
-pm = UART(0, baudrate=9600, bits=8, parity=None, stop=1, tx=Pin(0), rx=Pin(1))
+pm = UART(0)
 
 def sendSimpleCommand(cmd, description):
     for tried in range(5):
         try:
             pm.write(cmd)
             ret = pm.read(2)
-        except:
-            print("serial comm error")
-            exit(1)
+        except Exception as error:
+            print("An error occurred: ", error)
+            return
 
         if ret is None:                                           
             print("Error: timeout")
@@ -34,23 +34,39 @@ def readMeasurement():
     try:
         pm.write(b'\x68\x01\x04\x93')
         ret = pm.read(8)
-    except:
-        exit(1)
+    except Exception as error:
+        print("An error occurred: ", error)
+        return
     
     if ret is None:
         print("Error: timeout")
     else:
-        pm25 = ret[3] * 256 + ret[4]
-        pm10 = ret[5] * 256 + ret[6]
+        pm25 = int(ret[3]) * 256 + int(ret[4])
+        pm10 = int(ret[5]) * 256 + int(ret[6])
         output_string = 'particulate_matter_ugpm3{{size="pm2.5",sensor="HPM"}} {0}\n'.format(pm25)
         output_string += 'particulate_matter_ugpm3{{size="pm10",sensor="HPM"}} {0}\n'.format(pm10)
         return(output_string)
     
-    print("Read Measurment unsuccessful, exit")
+    print("read measurment unsuccessful, exit")
 
+if __name__ == "__main__":
+    print("resetting sensor...")
+    pm.flush()
+    stopMeasurement()
+    sleep(2)
 
-print("Starting measurement...")
-startMeasurement()
-sleep(2)
-stopMeasurement()
-print("Ended")
+    stopAutoSend()
+    print("Starting measurement...")
+    startMeasurement()
+    stopAutoSend()
+
+    for i in range(15): # throw away first measurements because of internal running average over 10s and fan speed up
+        output_string = readMeasurement()
+        print(output_string, end='')
+        sleep(1)
+
+    # output real data
+    while True:
+        output_string = readMeasurement()
+        print(output_string, end='')
+        sleep(1)
