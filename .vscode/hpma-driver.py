@@ -97,3 +97,28 @@ def readMeasurement():
   output_string += 'particulate_matter_ugpm3{{size="pm10",sensor="HPM"}} {0}\n'.format(pm10)
 
   return(output_string)
+
+
+if __name__ == "__main__":
+  print("resetting sensor...")
+  ser.flushInput()
+  sendSimpleCommand("\x68\x01\x02\x95", "Stop Particle Measurement")
+  time.sleep(2)
+
+  stopAutoSend()
+  print("starting measurement...")
+  startMeasurement()
+  stopAutoSend()
+
+  for i in range(15): # throw away first measurements because of internal running average over 10s and fan speed up
+    output_string = readMeasurement()
+    print(output_string, end='')
+    time.sleep(1)
+
+  print("starting logging.")
+  while True:
+    output_string = readMeasurement()
+    logfilehandle = open(LOGFILE, "w",1)
+    logfilehandle.write(output_string)
+    logfilehandle.close()
+    time.sleep(1)
