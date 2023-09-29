@@ -8,7 +8,7 @@ LCD1602_SCL = Pin(9)
 LCD1602_I2C = I2C(0,sda = LCD1602_SDA,scl = LCD1602_SCL ,freq = 400000)
 
 #Device I2C Arress
-LCD_ADDRESS = (0x7c>>1)
+LCD_ADDRESS = 0x3e
 
 LCD_CLEARDISPLAY = 0x01
 LCD_RETURNHOME = 0x02
@@ -72,6 +72,7 @@ class LCD1602:
   def clear(self):
     self.command(LCD_CLEARDISPLAY)
     time.sleep(0.002)
+  
   def printout(self,arg):
     if(isinstance(arg,int)):
       arg=str(arg)

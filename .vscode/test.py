@@ -14,8 +14,6 @@ try:
 
         lcd.printout("Hello World!")
         time.sleep(0.1)
-
-        print("Running")
 except(KeyboardInterrupt):
     lcd.clear()
     del lcd
