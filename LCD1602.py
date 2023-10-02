@@ -2,13 +2,13 @@
 import time
 from machine import Pin, I2C
 
-LCD1602_SDA = Pin(8)
-LCD1602_SCL = Pin(9)
+LCD1602_SDA = Pin(4)
+LCD1602_SCL = Pin(5)
 
 LCD1602_I2C = I2C(0,sda = LCD1602_SDA,scl = LCD1602_SCL ,freq = 400000)
 
 #Device I2C Arress
-LCD_ADDRESS = 0x3e
+LCD_ADDRESS = (0x7c>>1)
 
 LCD_CLEARDISPLAY = 0x01
 LCD_RETURNHOME = 0x02
@@ -52,15 +52,15 @@ class LCD1602:
     self._row = row
     self._col = col
 
-    self._showfunction = LCD_4BITMODE | LCD_1LINE | LCD_5x8DOTS
+    self._showfunction = LCD_8BITMODE | LCD_1LINE | LCD_5x8DOTS
     self.begin(self._row,self._col)
 
         
   def command(self,cmd):
-    LCD1602_I2C.writeto_mem(LCD_ADDRESS, 0x80, bytes(cmd))
+    LCD1602_I2C.writeto_mem(LCD_ADDRESS, 0x80, chr(cmd))
 
   def write(self,data):
-    LCD1602_I2C.writeto_mem(LCD_ADDRESS, 0x40, bytes(data))
+    LCD1602_I2C.writeto_mem(LCD_ADDRESS, 0x40, chr(data))
 
   def setCursor(self,col,row):
     if(row == 0):
@@ -118,3 +118,21 @@ class LCD1602:
     self.command(LCD_ENTRYMODESET | self._showmode)
     # backlight init
 
+lcd = LCD1602(16, 2)
+led = Pin("LED", Pin.OUT)
+
+try:
+    while True:
+        # set the cursor to column 0, line 1
+        lcd.setCursor(0, 0)
+
+        lcd.printout("Hi Zane")
+
+        lcd.setCursor(0, 1)
+
+        lcd.printout("Hi Joe!")
+        led.toggle()
+        time.sleep(0.1)
+except(KeyboardInterrupt):
+    lcd.clear()
+    del lcd
