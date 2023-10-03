@@ -1,9 +1,35 @@
 import LCD1602
-import time
+import HPMA
+from utime import sleep
 from machine import Pin
 
 lcd = LCD1602.LCD1602(16, 2)
 led = Pin("LED", Pin.OUT)
+pms = HPMA.HPMA(0)
+
+# print("resetting sensor...")
+# pms.flush()
+# pms.stopMeasurement()
+# sleep(2)
+
+# pms.stopAutoSend()
+# print("Starting measurement...")
+# pms.startMeasurement()
+# pms.stopAutoSend()
+
+# for i in range(15): # throw away first measurements because of internal running average over 10s and fan speed up
+#     output_string = pms.readMeasurement()
+#     print(output_string, end='')
+#     sleep(1)
+
+# # output real data
+# for i in range(15):
+#     output_string = pms.readMeasurement()
+#     print(output_string, end='')
+#     sleep(1)
+
+# print("powering down")
+# pms.stopMeasurement()
 
 try:
     while True:
@@ -16,7 +42,7 @@ try:
 
         lcd.printout("Hello World!")
         led.toggle()
-        time.sleep(0.1)
+        sleep(0.1)
 except(KeyboardInterrupt):
     lcd.clear()
     del lcd
