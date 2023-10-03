@@ -7,42 +7,41 @@ lcd = LCD1602.LCD1602(16, 2)
 led = Pin("LED", Pin.OUT)
 pms = HPMA.HPMA(0)
 
-# print("resetting sensor...")
-# pms.flush()
-# pms.stopMeasurement()
-# sleep(2)
+print("resetting sensor...")
+pms.flush()
+pms.stopMeasurement()
+sleep(2)
 
-# pms.stopAutoSend()
-# print("Starting measurement...")
-# pms.startMeasurement()
-# pms.stopAutoSend()
+pms.stopAutoSend()
+print("Starting measurement...")
+pms.startMeasurement()
+pms.stopAutoSend()
 
-# for i in range(15): # throw away first measurements because of internal running average over 10s and fan speed up
-#     output_string = pms.readMeasurement()
-#     print(output_string, end='')
-#     sleep(1)
+for i in range(15): # throw away first measurements because of internal running average over 10s and fan speed up
+    output_string = pms.readMeasurement()
+    [pm25, pm10] = str(output_string).split(' ')
 
-# # output real data
-# for i in range(15):
-#     output_string = pms.readMeasurement()
-#     print(output_string, end='')
-#     sleep(1)
+    lcd.setCursor(0, 0)
+    lcd.printout('PM2.5: {0}'.format(pm25))
 
-# print("powering down")
-# pms.stopMeasurement()
+    lcd.setCursor(0, 1)
+    lcd.printout('PM10: {0}'.format(pm10))
 
-try:
-    while True:
-        # set the cursor to column 0, line 1
-        lcd.setCursor(0, 0)
+    sleep(1)
 
-        lcd.printout("Testing")
+# output real data
+print("Starting data collection...")
+for i in range(15):
+    output_string = pms.readMeasurement()
+    [pm25, pm10] = str(output_string).split(' ')
 
-        lcd.setCursor(0, 1)
+    lcd.setCursor(0, 0)
+    lcd.printout('PM2.5: {0}'.format(pm25))
 
-        lcd.printout("Hello World!")
-        led.toggle()
-        sleep(0.1)
-except(KeyboardInterrupt):
-    lcd.clear()
-    del lcd
+    lcd.setCursor(0, 1)
+    lcd.printout('PM10: {0}'.format(pm10))
+    
+    sleep(1)
+
+print("powering down")
+pms.stopMeasurement()

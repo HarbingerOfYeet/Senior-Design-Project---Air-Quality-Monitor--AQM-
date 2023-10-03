@@ -6,10 +6,10 @@
 import time
 from machine import Pin, I2C
 
-LCD1602_SDA = Pin(4)
-LCD1602_SCL = Pin(5)
+LCD1602_SDA = Pin(2)
+LCD1602_SCL = Pin(3)
 
-LCD1602_I2C = I2C(0,sda = LCD1602_SDA,scl = LCD1602_SCL ,freq = 400000)
+LCD1602_I2C = I2C(1,sda = LCD1602_SDA,scl = LCD1602_SCL ,freq = 400000)
 
 #Device I2C Arress
 LCD_ADDRESS = (0x7c>>1)
@@ -61,10 +61,10 @@ class LCD1602:
 
         
   def command(self,cmd):
-    LCD1602_I2C.writeto_mem(LCD_ADDRESS, 0x80, bytes(cmd))
+    LCD1602_I2C.writeto_mem(LCD_ADDRESS, 0x80, chr(cmd))  # type: ignore
 
   def write(self,data):
-    LCD1602_I2C.writeto_mem(LCD_ADDRESS, 0x40, bytes(data))
+    LCD1602_I2C.writeto_mem(LCD_ADDRESS, 0x40, chr(data)) # type: ignore
 
   def setCursor(self,col,row):
     if(row == 0):
