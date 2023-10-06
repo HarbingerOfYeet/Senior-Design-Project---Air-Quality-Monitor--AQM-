@@ -8,71 +8,79 @@
 from machine import UART, Pin
 from utime import sleep
 
-
-pm = UART(0, baudrate=115200, tx=Pin(16), rx=Pin(17))
-pm.init(bits=7, parity=None, stop=1)
-#pm = serial.Serial()
-
+pm = UART(0, tx=Pin(16), rx=Pin(17))
 def sendSimpleCommand(cmd, description):
     for tried in range(5):
         try:
             pm.write(cmd)
+            num = pm.any()
             ret = pm.read()    # read 2 bytes
+            print(num)
+            print(ret)
         except Exception as error:
             print("An error occurred: ", error)
             return
 
         if ret is None:                                           
             print("Error: timeout")
-        elif len(ret) < 2:
-            print(f"Error: only {len(ret)} bytes received")
         else:
             return
     print(description, "unsuccessful, exit")    
 
 def startMeasurement():
-    #sendSimpleCommand(b'\x7e\x00\x00\x01\x00\xfe\x7e', "start measurement")
-    sendSimpleCommand([0x7E, 0x00, 0x00, 0x01, 0x00, 0xFE, 0x7E], "start measurement") 
+    sendSimpleCommand(b'\x7e\x00\x00\x01\x00\xfe\x7e', "start measurement")
 
 def stopMeasurement():
-    #sendSimpleCommand(b'\x7E\x00\x01\x00\xFE\x7E', "stop measurement")
-    sendSimpleCommand([0x7E, 0x00, 0x01, 0x00, 0xFE, 0x7E], "stop measurement")
+    sendSimpleCommand(b'\x7E\x00\x01\x00\xFE\x7E', "stop measurement")
+
+def getDevice():
+    sendSimpleCommand(b'\x7E\x00\xD0\x01\x06\x28\x7E', "read device info") 
+
+def resetDevice():
+    sendSimpleCommand(b'\x7E\x00\xD3\x00\x2C\x7E', "Reset Device")
     
+
 def readMeasurement():
     try:
-        #pm.write(b'\x7E\x03\x01\x02\xF9\x7E')
-        pm.write([0x7E, 0x03, 0x01, 0x02, 0xF9, 0x7E], "read measurement")
+        pm.write(b'\x7E\x03\x01\x02\xF9\x7E')
+        num = pm.any()
         ret = pm.read()    # read 8 bytes
+        print(num)
         print(ret)
     except Exception as error:
         print("An error occurred: ", error)
         return
     
-   # if ret is None:
-   #     print("Error: timeout")
-    #else:
-    #    pm25 = int(ret[3]) * 256 + int(ret[4])
-    #    pm10 = int(ret[5]) * 256 + int(ret[6])
-    #    output_string = 'particulate_matter_ugpm3{{size="pm2.5",sensor="HPM"}} {0}\n'.format(pm25)
-     #   output_string += 'particulate_matter_ugpm3{{size="pm10",sensor="HPM"}} {0}\n'.format(pm10)
-     #   return(output_string)
+    if ret is None:
+       print("Error: timeout")
+    else:
+       hcho = (256 * int(ret[5]) + int(ret[6])) / 5
+        # = int(ret[5]) * 256 + int(ret[6])
+       output_string = 'particulate_matter_ugpm3{{size="pm2.5",sensor="HPM"}} {0}\n'.format(pm25)
+       output_string += 'particulate_matter_ugpm3{{size="pm10",sensor="HPM"}} {0}\n'.format(pm10)
+       return(output_string)
     
-    #print("read measurment unsuccessful, exit")
+    print("read measurment unsuccessful, exit")
     
 print("resetting sensor...")
 pm.flush()
-stopMeasurement()
+resetDevice()
+# stopMeasurement()
+# getDevice()
 sleep(2)
 
-print("Starting measurement...")
-startMeasurement()
+# print("Device info")
+# getDevice()
+
+# print("Starting measurement...")
+# startMeasurement()
 
 #for i in range(15): # throw away first measurements because of internal running average over 10s and fan speed up
     #output_string = readMeasurement()
     #print(output_string, end='')
     #sleep(1)
     
-stopMeasurement()
+# stopMeasurement()
 
 #pm.deinit()
 
