@@ -1,0 +1,80 @@
+# Title: SFSART.py
+# Description: code library defining communication via UART for HPMA115CO
+# Author: Joe Pierzakowski
+# BME 495 Senior Design
+# Adapted for Raspberry Pi Pico using micropython from https://github.com/UnravelTEC/Raspi-Driver-HPM-series and code from Winston Ngo
+
+
+from machine import UART, Pin
+from utime import sleep
+
+
+pm = UART(0, baudrate=115200, tx=Pin(16), rx=Pin(17))
+pm.init(bits=7, parity=None, stop=1)
+#pm = serial.Serial()
+
+def sendSimpleCommand(cmd, description):
+    for tried in range(5):
+        try:
+            pm.write(cmd)
+            ret = pm.read()    # read 2 bytes
+        except Exception as error:
+            print("An error occurred: ", error)
+            return
+
+        if ret is None:                                           
+            print("Error: timeout")
+        elif len(ret) < 2:
+            print(f"Error: only {len(ret)} bytes received")
+        else:
+            return
+    print(description, "unsuccessful, exit")    
+
+def startMeasurement():
+    #sendSimpleCommand(b'\x7e\x00\x00\x01\x00\xfe\x7e', "start measurement")
+    sendSimpleCommand([0x7E, 0x00, 0x00, 0x01, 0x00, 0xFE, 0x7E], "start measurement") 
+
+def stopMeasurement():
+    #sendSimpleCommand(b'\x7E\x00\x01\x00\xFE\x7E', "stop measurement")
+    sendSimpleCommand([0x7E, 0x00, 0x01, 0x00, 0xFE, 0x7E], "stop measurement")
+    
+def readMeasurement():
+    try:
+        #pm.write(b'\x7E\x03\x01\x02\xF9\x7E')
+        pm.write([0x7E, 0x03, 0x01, 0x02, 0xF9, 0x7E], "read measurement")
+        ret = pm.read()    # read 8 bytes
+        print(ret)
+    except Exception as error:
+        print("An error occurred: ", error)
+        return
+    
+   # if ret is None:
+   #     print("Error: timeout")
+    #else:
+    #    pm25 = int(ret[3]) * 256 + int(ret[4])
+    #    pm10 = int(ret[5]) * 256 + int(ret[6])
+    #    output_string = 'particulate_matter_ugpm3{{size="pm2.5",sensor="HPM"}} {0}\n'.format(pm25)
+     #   output_string += 'particulate_matter_ugpm3{{size="pm10",sensor="HPM"}} {0}\n'.format(pm10)
+     #   return(output_string)
+    
+    #print("read measurment unsuccessful, exit")
+    
+print("resetting sensor...")
+pm.flush()
+stopMeasurement()
+sleep(2)
+
+print("Starting measurement...")
+startMeasurement()
+
+#for i in range(15): # throw away first measurements because of internal running average over 10s and fan speed up
+    #output_string = readMeasurement()
+    #print(output_string, end='')
+    #sleep(1)
+    
+stopMeasurement()
+
+#pm.deinit()
+
+#Error: object with buffer protocol required?
+#
