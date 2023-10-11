@@ -9,6 +9,7 @@ from machine import UART, Pin
 from utime import sleep
 
 pm = UART(0, tx=Pin(16), rx=Pin(17))
+
 def sendSimpleCommand(cmd, description):
     for tried in range(5):
         try:
@@ -34,10 +35,10 @@ def stopMeasurement():
     sendSimpleCommand(b'\x7E\x00\x01\x00\xFE\x7E', "stop measurement")
 
 def getDevice():
-    sendSimpleCommand(b'\x7E\x00\xD0\x01\x06\x28\x7E', "read device info") 
+    sendSimpleCommand(b'\x7E\x00\xD0\x01\x06\x28\x7E', "get device info") 
 
 def resetDevice():
-    sendSimpleCommand(b'\x7E\x00\xD3\x00\x2C\x7E', "Reset Device")
+    sendSimpleCommand(b'\x7E\x00\xD3\x00\x2C\x7E', "device reset")
     
 
 def readMeasurement():
@@ -56,9 +57,9 @@ def readMeasurement():
     else:
        hcho = (256 * int(ret[5]) + int(ret[6])) / 5
         # = int(ret[5]) * 256 + int(ret[6])
-       output_string = 'particulate_matter_ugpm3{{size="pm2.5",sensor="HPM"}} {0}\n'.format(pm25)
-       output_string += 'particulate_matter_ugpm3{{size="pm10",sensor="HPM"}} {0}\n'.format(pm10)
-       return(output_string)
+    #    output_string = 'particulate_matter_ugpm3{{size="pm2.5",sensor="HPM"}} {0}\n'.format(pm25)
+    #    output_string += 'particulate_matter_ugpm3{{size="pm10",sensor="HPM"}} {0}\n'.format(pm10)
+    #    return(output_string)
     
     print("read measurment unsuccessful, exit")
     
