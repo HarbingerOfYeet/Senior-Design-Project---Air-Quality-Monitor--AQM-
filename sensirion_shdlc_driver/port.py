@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 # (c) Copyright 2019 Sensirion AG, Switzerland
 
-from __future__ import absolute_import, division, print_function
+# from __future__ import absolute_import, division, print_function
 from .errors import ShdlcTimeoutError
 from .serial_frame_builder import ShdlcSerialMosiFrameBuilder, \
     ShdlcSerialMisoFrameBuilder
@@ -167,7 +167,7 @@ class ShdlcSerialPort(ShdlcPort):
         :rtype: string
         """
         with self._lock:
-            return self._serial.name + '@' + str(self._serial.baudrate)
+            return str(self._serial.name) + '@' + str(self._serial.baudrate)
 
     @property
     def bitrate(self):
@@ -330,7 +330,7 @@ class ShdlcSerialPort(ShdlcPort):
         """
         # Calculate theoretical transmission time of longest possible frame:
         #   600 bytes * (start bit + 8 data bits + stop bit) / bitrate
-        max_frame_time = (600.0 * 10.0) / self.bitrate
+        max_frame_time = (600.0 * 10.0) / int(self.bitrate)
         # Add 200ms extra, e.g. for inter-byte spaces.
         return max_frame_time + 0.2
 
@@ -513,5 +513,5 @@ class ShdlcTcpPort(ShdlcPort):
                     log.debug("ShdlcTcpPort received raw: [{}]".format(
                               ", ".join(["0x%.2X" % i for i in builder.data])))
                     return builder.interpret_data()
-        except socket.timeout:
+        except socket.timeout: # type: ignore
             raise ShdlcTimeoutError()

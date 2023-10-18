@@ -1,9 +1,10 @@
 # -*- coding: utf-8 -*-
 # (c) Copyright 2019 Sensirion AG, Switzerland
 
-from __future__ import absolute_import, division, print_function
-from sensirion_shdlc_driver import ShdlcSerialPort, ShdlcConnection
-from sensirion_shdlc_sfa3x import Sfa3xShdlcDevice
+# from __future__ import absolute_import, division, print_function
+from sensirion_shdlc_driver.port import ShdlcSerialPort
+from sensirion_shdlc_driver.connection import ShdlcConnection
+from sensirion_shdlc_sfa3x.device import Sfa3xShdlcDevice
 import time
 
 import logging
