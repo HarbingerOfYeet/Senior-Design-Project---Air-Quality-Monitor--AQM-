@@ -8,7 +8,15 @@ from machine import UART
 
 class HPMA:
     def __init__(self, id):
-        self._pm = UART(id)
+        self._pm = UART(id, 9600)
+        # self._pm.init(
+        #     baudrate=9600,
+        #     bits=8,
+        #     parity=None,
+        #     stop=1,
+        #     tx=0,
+        #     rx=1
+        # )
 
     def flush(self):
         self._pm.flush()
@@ -50,8 +58,8 @@ class HPMA:
         if ret is None:
             print("Error: timeout")
         else:
-            pm25 = int(ret[3]) * 256 + int(ret[4])
-            pm10 = int(ret[5]) * 256 + int(ret[6])
+            pm25 = ord(ret[3]) * 256 + ord(ret[4])      # type: ignore
+            pm10 = ord(ret[5]) * 256 + ord(ret[6])      # type: ignore
             output_string = '{0} {1}'.format(pm25, pm10)
             return(output_string)
         

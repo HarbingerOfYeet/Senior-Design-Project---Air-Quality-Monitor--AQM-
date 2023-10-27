@@ -57,6 +57,7 @@ try:
         sleep(1)
 
 except KeyboardInterrupt as exception:
+    logfile.close()
     lcd.clear()
     lcd.setCursor(0, 0)
     lcd.printout("power down")
