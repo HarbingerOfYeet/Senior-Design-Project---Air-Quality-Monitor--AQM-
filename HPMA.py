@@ -8,15 +8,7 @@ from machine import UART
 
 class HPMA:
     def __init__(self, id):
-        self._pm = UART(id, 9600)
-        # self._pm.init(
-        #     baudrate=9600,
-        #     bits=8,
-        #     parity=None,
-        #     stop=1,
-        #     tx=0,
-        #     rx=1
-        # )
+        self._pm = UART(id)
 
     def flush(self):
         self._pm.flush()
@@ -26,6 +18,7 @@ class HPMA:
             try:
                 self._pm.write(cmd)
                 ret = self._pm.read(2)    # read 2 bytes
+                print(ret)
             except Exception as error:
                 print("An error occurred: ", error)
                 return
@@ -50,7 +43,8 @@ class HPMA:
     def readMeasurement(self):
         try:
             self._pm.write(b'\x68\x01\x04\x93')
-            ret = self._pm.read(8)    # read 8 bytes
+            ret = self._pm.read(8)    # read 16 bytes
+            print(ret)
         except Exception as error:
             print("An error occurred: ", error)
             return
@@ -58,9 +52,16 @@ class HPMA:
         if ret is None:
             print("Error: timeout")
         else:
-            pm25 = ord(ret[3]) * 256 + ord(ret[4])      # type: ignore
-            pm10 = ord(ret[5]) * 256 + ord(ret[6])      # type: ignore
-            output_string = '{0} {1}'.format(pm25, pm10)
+            pm25 = int(ret[5]) * 256 + int(ret[6])
+            pm1 = int(ret[3]) * 256 + int(ret[4])
+
+            # account for errors in data reading
+            if pm25 > 40000:
+                pm25 = 0
+            if pm1 > 40000:
+                pm25 = 0
+
+            output_string = '{0} {1}'.format(pm25, pm1)
             return(output_string)
         
         print("read measurment unsuccessful, exit")
