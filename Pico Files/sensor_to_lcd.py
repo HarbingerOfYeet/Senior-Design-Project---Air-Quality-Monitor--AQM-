@@ -22,9 +22,8 @@ pms.flush()
 for i in range(15): # throw away first measurements because of internal running average over 10s and fan speed up
     
     # read sensor data
-    # output_string = pms.readMeasurement()
-    # [pm25, pm10] = str(output_string).split(' ')
-    pm25 = pms.readMeasurement()
+    output_string = pms.readMeasurement()
+    [pm25, pm1] = str(output_string).split(' ')
 
     # output sensor data to LCD
     lcd.clear()
@@ -47,9 +46,8 @@ try:
     while True:
 
         # read sensor data
-        # output_string = pms.readMeasurement()
-        # [pm25, pm10] = str(output_string).split(' ')
-        pm25 = pms.readMeasurement()
+        output_string = pms.readMeasurement()
+        [pm25, pm1] = str(output_string).split(' ')
 
         # output sensor data to LCD
         lcd.clear()
