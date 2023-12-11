@@ -17,7 +17,7 @@ from time import sleep
 
 # threshold values for PM2.5, PM10, and HCHO to trigger warning message and vibration motors
 WARNING_PM25 = 35
-WARNING_PM10 = 100
+WARNING_PM10 = 150
 WARNING_HCHO = 50
 
 # create LCD object
